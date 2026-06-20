@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نظام إدارة المستخدمين</title>
+
+<style>
+body {
+    font-family: Arial;
+    direction: rtl;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+}
+
+h1 {
+    margin: 20px;
+}
+
+input {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+    
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.add { background: #22c55e; }
+.update { background: #eab308; }
+.delete { background: #ef4444; }
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #334155;
+}
+
+tr:hover {
+    background: #1e293b;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>📋 نظام كشف حسابات </h1>
+
+<input type="text" id="id" placeholder="ID">
+<input type="text" id="name" placeholder="الاسم">
+<input type="text" id="username" placeholder="رقم التلفون">
+<input type="number" id="balance" placeholder="الرصيد">
+
+<br>
+
+<button class="add" onclick="addUser()">إضافة</button>
+<button class="update" onclick="updateUser()">تعديل</button>
+<button class="delete" onclick="deleteUser()">حذف</button>
+
+<br><br>
+
+<input type="text" id="search" placeholder="بحث..." onkeyup="searchUser()">
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>الاسم</th>
+<th>رقم التلفون</th>
+<th>الرصيد</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+</div>
+
+<script>
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+function saveData() {
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
+function displayUsers(data = users) {
+    let table = "";
+    data.forEach(u => {
+        table += `
+        <tr onclick="selectUser(${u.id})">
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.username}</td>
+            <td>${u.balance}</td>
+        </tr>`;
+    });
+    document.getElementById("tableBody").innerHTML = table;
+}
+
+function addUser() {
+    let user = {
+        id: document.getElementById("id").value,
+        name: document.getElementById("name").value,
+        username: document.getElementById("username").value,
+        balance: document.getElementById("balance").value
+    };
+
+    if (!user.id || !user.name) {
+        alert("أدخل البيانات كاملة!");
+        return;
+    }
+
+    users.push(user);
+    saveData();
+    displayUsers();
+    clearInputs();
+}
+
+function selectUser(id) {
+    let u = users.find(x => x.id == id);
+    document.getElementById("id").value = u.id;
+    document.getElementById("name").value = u.name;
+    document.getElementById("username").value = u.username;
+    document.getElementById("balance").value = u.balance;
+}
+
+function updateUser() {
+    let id = document.getElementById("id").value;
+    let u = users.find(x => x.id == id);
+
+    if (u) {
+        u.name = document.getElementById("name").value;
+        u.username = document.getElementById("username").value;
+        u.balance = document.getElementById("balance").value;
+        saveData();
+        displayUsers();
+    }
+}
+
+function deleteUser() {
+    let id = document.getElementById("id").value;
+    users = users.filter(u => u.id != id);
+    saveData();
+    displayUsers();
+    clearInputs();
+}
+
+function searchUser() {
+    let value = document.getElementById("search").value.toLowerCase();
+    let filtered = users.filter(u =>
+        u.name.toLowerCase().includes(value) ||
+        u.id.toString().includes(value)
+    );
+    displayUsers(filtered);
+}
+
+function clearInputs() {
+    document.getElementById("id").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("username").value = "";
+    document.getElementById("balance").value = "";
+}
+
+displayUsers();
+
+</script>
+
+</body>
+</html>
